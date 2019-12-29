@@ -54,27 +54,27 @@ function DFS(u) is
     */
 
 bool DFS(int actress, vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>& pairActors, vector<int>& dist) {
-  if (actress != NIL) {
-    for (int i = 0; i < actresses[actress].size(); i++) {
-      int actor = actresses[actress][i]; // meaning this actress doesn't yet have a match
-      cout << "For actress " << actress << ", checking actor " << actor << endl;
-      if (dist[pairActors[actor]] == dist[actress] + 1) {
-        if (DFS(pairActors[actor], actresses, pairActresses, pairActors, dist)) {
-          pairActors[actor] = actress;
-          pairActresses[actress] = actor;
-          return true;
-        }
+  if (actress == NIL) {
+    return true;
+  }
+  for (int i = 0; i < actresses[actress].size(); i++) {
+    int actor = actresses[actress][i]; 
+    // cout << "For actress " << actress << ", checking actor " << actor << endl;
+    if (dist[pairActors[actor]] == dist[actress] + 1) {
+      if (DFS(pairActors[actor], actresses, pairActresses, pairActors, dist)) {
+        pairActors[actor] = actress;
+        pairActresses[actress] = actor;
+        return true;
       }
     }
-    dist[actress] = INF;
-    return false;
   }
-  return true;
+  dist[actress] = INF;
+  return false;
 }
 
 bool BFS(vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>& pairActors, vector<int>& dist) {
   vector<int> queue;
-  for (int actress = 0; actress < actresses.size(); actress++){
+  for (int actress = 1; actress < actresses.size(); actress++){
     if (pairActresses[actress] == NIL) { // meaning this actress doesn't yet have a match
       dist[actress] = 0;
       queue.push_back(actress);
@@ -88,7 +88,7 @@ bool BFS(vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>
     queue.erase(queue.begin());
     if (dist[actress] < dist[NIL]) {
       for (int i = 0; i < actresses[actress].size(); i++) {
-        int actor = actresses[actress][i];// + 1 because we inserted NIL at 0 
+        int actor = actresses[actress][i];
         if (dist[pairActors[actor]] == INF) {
           dist[pairActors[actor]] = dist[actress] + 1;
           queue.push_back(pairActors[actor]);
@@ -99,7 +99,8 @@ bool BFS(vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>
   return dist[NIL] != INF;
 }
 int HopcroftKarp(vector<vector<int>> actresses) {
-  actresses.insert(actresses.begin(), {}); // insert node NIL with all actors
+  vector<int> empty = {};
+  actresses.insert(actresses.begin(), empty);
   vector<int> pairActresses, pairActors = {};
   for (int i = 0; i < actresses.size(); i++) {
     pairActresses.push_back(NIL);
@@ -109,9 +110,9 @@ int HopcroftKarp(vector<vector<int>> actresses) {
   vector<int> dist(actresses.size());
   while (BFS(actresses, pairActresses, pairActors, dist)) {
     // for (int i = 0; i < dist.size(); i++ ) {
-    //   cout << "i: " << i << ", dist: " << dist[i] << endl;
+    //   cout << "i: " << i << ", dist: " << dist[i] << ", pairActresses[i]:" << pairActresses[i] << ", pairActors[i]: " << pairActors[i] << ", dist[i]: " << dist[i] << endl;
     // }
-    for (int actress = 0; actress < actresses.size(); actress++) {
+    for (int actress = 1; actress < actresses.size(); actress++) {
       if (pairActresses[actress] == NIL && DFS(actress, actresses, pairActresses, pairActors, dist)) {
         matching++;
       }
@@ -170,8 +171,8 @@ int main(int argc, char const *argv[]) {
   input(actresses);
   int max = actresses.size();
   int m = HopcroftKarp(actresses);
-  cout << "matching: " << m << ", max: " << max << endl;
-  if (m == max - 1) {
+  // cout << "Matching: " << m << ", max: " << max << endl;
+  if (m == max ) {
     cout << "Mark" << endl;
   } else {
     cout << "Veronique" << endl;
