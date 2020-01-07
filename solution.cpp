@@ -7,61 +7,12 @@ using namespace std;
 #define NIL 0
 #define INF INT_MAX 
 
-/*
-G = U ∪ V ∪ {NIL}
- where U and V are partition of graph and NIL is a special null vertex
-
-
-function Hopcroft–Karp is
-    for each u in U do
-        Pair_U[u] := NIL
-    for each v in V do
-        Pair_V[v] := NIL
-    matching := 0
-    while BFS() = true do
-        for each u in U do
-            if Pair_U[u] = NIL then
-                if DFS(u) = true then
-                    matching := matching + 1
-    return matching
-
-function BFS() is
-    for each u in U do
-        if Pair_U[u] = NIL then
-            Dist[u] := 0
-            Enqueue(Q, u)
-        else
-            Dist[u] := ∞
-    Dist[NIL] := ∞
-    while Empty(Q) = false do
-        u := Dequeue(Q)
-        if Dist[u] < Dist[NIL] then
-            for each v in Adj[u] do
-                if Dist[Pair_V[v]] = ∞ then
-                    Dist[Pair_V[v]] := Dist[u] + 1
-                    Enqueue(Q, Pair_V[v])
-    return Dist[NIL] ≠ ∞
-
-function DFS(u) is
-    if u ≠ NIL then
-        for each v in Adj[u] do
-            if Dist[Pair_V[v]] = Dist[u] + 1 then
-                if DFS(Pair_V[v]) = true then
-                    Pair_V[v] := u
-                    Pair_U[u] := v
-                    return true
-        Dist[u] := ∞
-        return false
-    return true
-    */
-
 bool DFS(int actress, vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>& pairActors, vector<int>& dist) {
   if (actress == NIL) {
     return true;
   }
   for (int i = 0; i < actresses[actress].size(); i++) {
     int actor = actresses[actress][i]; 
-    // cout << "For actress " << actress << ", checking actor " << actor << endl;
     if (dist[pairActors[actor]] == dist[actress] + 1) {
       if (DFS(pairActors[actor], actresses, pairActresses, pairActors, dist)) {
         pairActors[actor] = actress;
@@ -100,9 +51,8 @@ bool BFS(vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>
   }
   return dist[NIL] != INF;
 }
+
 int HopcroftKarp(vector<vector<int>> actresses) {
-  vector<int> empty = {};
-  actresses.insert(actresses.begin(), empty);
   vector<int> pairActresses, pairActors = {};
   for (int i = 0; i < actresses.size(); i++) {
     pairActresses.push_back(NIL);
@@ -111,9 +61,6 @@ int HopcroftKarp(vector<vector<int>> actresses) {
   int matching = 0;
   vector<int> dist(actresses.size());
   while (BFS(actresses, pairActresses, pairActors, dist)) {
-    // for (int i = 0; i < dist.size(); i++ ) {
-    //   cout << "i: " << i << ", dist: " << dist[i] << ", pairActresses[i]:" << pairActresses[i] << ", pairActors[i]: " << pairActors[i] << ", dist[i]: " << dist[i] << endl;
-    // }
     for (int actress = 1; actress < actresses.size(); actress++) {
       if (pairActresses[actress] == NIL && DFS(actress, actresses, pairActresses, pairActors, dist)) {
         matching++;
@@ -125,17 +72,18 @@ int HopcroftKarp(vector<vector<int>> actresses) {
 }
 
 void input(vector<vector<int>>& U) {
+  U.push_back({});
   int nrActors, nrMovies;
   cin >> nrActors >> nrMovies;
   map<string, int> actresses, actors;// map of names to indexes
   string actress;
-  for (int i = 0; i < nrActors; i++) {
+  for (int i = 1; i < nrActors + 1; i++) {
     cin >> actress;
     actresses[actress] = i;
     U.push_back({});
   }
   string actor;
-  for (int i = 0; i < nrActors; i++) {
+  for (int i = 1; i < nrActors + 1; i++) {
     cin >> actor;
     actors[actor] = i;
   }
@@ -156,7 +104,6 @@ void input(vector<vector<int>>& U) {
         actorsInMovie.push_back(actors[name]);
       }
     }
-    // cout << endl << "For the movie " << movie << ", " << actorsInMovie.size() << " actors, " << actressesInMovie.size() << " actresses" << endl;
     for (int i = 0; i < actressesInMovie.size(); i++) {
       int actress = actressesInMovie[i];
       for (int j = 0; j < actorsInMovie.size(); j++) {
@@ -172,10 +119,8 @@ void input(vector<vector<int>>& U) {
 int main(int argc, char const *argv[]) {
   vector<vector<int>> actresses;
   input(actresses);
-  int max = actresses.size();
   int m = HopcroftKarp(actresses);
-  cout << endl << "max: " << max << ", matching: " << m << endl;
-  if (m == max ) {
+  if (m == actresses.size() - 1 ) {
     cout << "Mark" << endl;
   } else {
     cout << "Veronique" << endl;
