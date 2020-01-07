@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <limits.h>
+#include <algorithm>
 using namespace std;
 #define NIL 0
-#define INF 100000 // practically infinite in this case because maximum of 1000 movies.
+#define INF INT_MAX 
 
 /*
 G = U ∪ V ∪ {NIL}
@@ -154,6 +156,7 @@ void input(vector<vector<int>>& U) {
         actorsInMovie.push_back(actors[name]);
       }
     }
+    // cout << endl << "For the movie " << movie << ", " << actorsInMovie.size() << " actors, " << actressesInMovie.size() << " actresses" << endl;
     for (int i = 0; i < actressesInMovie.size(); i++) {
       int actress = actressesInMovie[i];
       for (int j = 0; j < actorsInMovie.size(); j++) {
@@ -171,7 +174,7 @@ int main(int argc, char const *argv[]) {
   input(actresses);
   int max = actresses.size();
   int m = HopcroftKarp(actresses);
-  // cout << "Matching: " << m << ", max: " << max << endl;
+  cout << endl << "max: " << max << ", matching: " << m << endl;
   if (m == max ) {
     cout << "Mark" << endl;
   } else {
