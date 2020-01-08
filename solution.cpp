@@ -3,6 +3,8 @@
 #include <map>
 #include <limits.h>
 #include <algorithm>
+#include <unordered_map>
+#include <queue>
 using namespace std;
 #define NIL 0
 #define INF INT_MAX 
@@ -26,25 +28,25 @@ bool DFS(int actress, vector<vector<int>>& actresses, vector<int>& pairActresses
 }
 
 bool BFS(vector<vector<int>>& actresses, vector<int>& pairActresses, vector<int>& pairActors, vector<int>& dist) {
-  vector<int> queue;
+  queue<int> Q;
   for (int actress = 1; actress < actresses.size(); actress++){
     if (pairActresses[actress] == NIL) { // meaning this actress doesn't yet have a match
       dist[actress] = 0;
-      queue.push_back(actress);
+      Q.push(actress);
     } else {
       dist[actress] = INF; 
     }
   }
   dist[NIL] = INF;
-  while(!queue.empty()) {
-    int actress = queue.front();
-    queue.erase(queue.begin());
+  while(!Q.empty()) {
+    int actress = Q.front();
+    Q.pop();
     if (dist[actress] < dist[NIL]) {
       for (int i = 0; i < actresses[actress].size(); i++) {
         int actor = actresses[actress][i];
         if (dist[pairActors[actor]] == INF) {
           dist[pairActors[actor]] = dist[actress] + 1;
-          queue.push_back(pairActors[actor]);
+          Q.push(pairActors[actor]);
         }
       }
     }
@@ -75,7 +77,7 @@ void input(vector<vector<int>>& U) {
   U.push_back({});
   int nrActors, nrMovies;
   cin >> nrActors >> nrMovies;
-  map<string, int> actresses, actors;// map of names to indexes
+  unordered_map<string, int> actresses, actors;// hash-map of names to indexes
   string actress;
   for (int i = 1; i < nrActors + 1; i++) {
     cin >> actress;
@@ -97,7 +99,7 @@ void input(vector<vector<int>>& U) {
     for (int n = 0; n < s; n++) {
       string name;
       cin >> name;
-      map<string,int>::iterator ac = actresses.find(name);
+      unordered_map<string,int>::const_iterator ac = actresses.find(name);
       if (ac != actresses.end()) {
         actressesInMovie.push_back(ac -> second);
       } else {
@@ -108,9 +110,7 @@ void input(vector<vector<int>>& U) {
       int actress = actressesInMovie[i];
       for (int j = 0; j < actorsInMovie.size(); j++) {
         int actor = actorsInMovie[j];
-        if (find(U[actress].begin(), U[actress].end(), actor) == U[actress].end()) {
-          U[actress].push_back(actor);
-        }
+        U[actress].push_back(actor);
       }
     }
   }
@@ -118,7 +118,9 @@ void input(vector<vector<int>>& U) {
 
 int main(int argc, char const *argv[]) {
   vector<vector<int>> actresses;
+  clock_t tStart = clock();
   input(actresses);
+  clock_t aStart = clock();
   int m = HopcroftKarp(actresses);
   if (m == actresses.size() - 1 ) {
     cout << "Mark" << endl;
